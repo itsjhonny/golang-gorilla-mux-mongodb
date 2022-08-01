@@ -14,5 +14,12 @@ func main() {
 	//run database
 	configs.ConnectDB()
 
-	log.Fatal(http.ListenAndServe(":6000", router))
+	//api cfgs
+	cfg_api, err := configs.LoadAPIConfigs()
+
+	if err != nil {
+		log.Fatal(nil)
+	}
+
+	log.Fatal(http.ListenAndServe(":"+cfg_api.Port, router))
 }

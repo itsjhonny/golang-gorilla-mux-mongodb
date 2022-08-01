@@ -7,12 +7,27 @@ import (
 	"github.com/joho/godotenv"
 )
 
+type APIConfig struct {
+	Port string
+}
+
 type DBConfig struct {
 	Uri      string
 	Database string
 }
 
-func load() (DBConfig, error) {
+func LoadAPIConfigs() (APIConfig, error) {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
+	cfg_api, err := getAPI()
+
+	return cfg_api, nil
+}
+
+func loadDBConfigs() (DBConfig, error) {
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
@@ -21,6 +36,19 @@ func load() (DBConfig, error) {
 	cfg_db, err := getDB()
 
 	return cfg_db, nil
+}
+
+func getAPI() (APIConfig, error) {
+
+	cfg_api := APIConfig{
+		Port: os.Getenv("API_PORT"),
+	}
+
+	if len(cfg_api.Port) <= 0 {
+		log.Fatal("Error api infos in .env file")
+	}
+
+	return cfg_api, nil
 }
 
 func getDB() (DBConfig, error) {
