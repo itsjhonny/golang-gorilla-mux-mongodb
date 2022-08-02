@@ -43,10 +43,24 @@ func CreateUser() http.HandlerFunc {
 			return
 		}
 
-		newUser := models.User{
-			Id:   primitive.NewObjectID(),
-			Name: user.Name,
+		role_new := models.Role{
+			Id:   "62e968e77c318bb671351a8c",
+			Name: "New",
 		}
+
+		role_member := models.Role{
+			Id:   "62e968e77c318bb671351a8d",
+			Name: "Member",
+		}
+
+		roles := []models.Role{role_new, role_member}
+
+		newUser := models.User{
+			Id:    primitive.NewObjectID(),
+			Name:  user.Name,
+			Roles: roles,
+		}
+
 		result, err := userCollection.InsertOne(ctx, newUser)
 		if err != nil {
 			rw.WriteHeader(http.StatusInternalServerError)
