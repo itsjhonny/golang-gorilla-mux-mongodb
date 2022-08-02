@@ -10,7 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func ConnectDB() {
+func ConnectDB() *mongo.Client {
 
 	cfg, err := loadDBConfigs()
 
@@ -22,7 +22,7 @@ func ConnectDB() {
 		log.Fatal(err)
 	}
 
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, _ := context.WithTimeout(context.Background(), 20*time.Second)
 	err = client.Connect(ctx)
 	if err != nil {
 		log.Fatal(err)
@@ -33,5 +33,11 @@ func ConnectDB() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	fmt.Println("Connected to MongoDB")
+
+	return client
 }
+
+//Client instance
+var DB *mongo.Client = ConnectDB()
