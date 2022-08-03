@@ -3,7 +3,7 @@ package models
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
 type Role struct {
-	Id   string `json:"id,omitempty"`
+	Id   primitive.ObjectID `json:"id,omitempty"`
 	Name string
 }
 

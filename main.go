@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"mux-mongo-api/configs"
 	"mux-mongo-api/routes"
@@ -8,6 +9,15 @@ import (
 
 	"github.com/gorilla/mux"
 )
+
+func routers(router *mux.Router) {
+	//routes
+
+	fmt.Println("Seting routers")
+
+	routes.UserRoute(router)
+	routes.RoleRoute(router)
+}
 
 func main() {
 	router := mux.NewRouter()
@@ -22,7 +32,7 @@ func main() {
 		log.Fatal(nil)
 	}
 
-	//routes
-	routes.UserRoute(router)
+	routers(router)
+
 	log.Fatal(http.ListenAndServe(":"+cfg_api.Port, router))
 }

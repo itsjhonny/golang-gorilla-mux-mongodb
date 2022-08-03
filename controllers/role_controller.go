@@ -10,25 +10,23 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-var userCollection *mongo.Collection = repositories.GetCollection(configs.DB, "users")
-var validate = validator.New()
+var roleCollection *mongo.Collection = repositories.GetCollection(configs.DB, "roles")
 
-func CreateUser() http.HandlerFunc {
+func CreateRole() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		rw.Header().Set("Content-Type", "application/json")
-		var user models.User
+		var role models.Role
 		defer cancel()
 
 		//validate the request body
-		if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
+		if err := json.NewDecoder(r.Body).Decode(&role); err != nil {
 			rw.WriteHeader(http.StatusBadRequest)
 			response := responses.UserResponse{Status: http.StatusBadRequest, Message: "error", Data: map[string]interface{}{"data": err.Error()}}
 			json.NewEncoder(rw).Encode(response)
@@ -36,21 +34,19 @@ func CreateUser() http.HandlerFunc {
 		}
 
 		//use the validator library to validate required fields
-		if validationErr := validate.Struct(&user); validationErr != nil {
+		if validationErr := validate.Struct(&role); validationErr != nil {
 			rw.WriteHeader(http.StatusBadRequest)
 			response := responses.UserResponse{Status: http.StatusBadRequest, Message: "error", Data: map[string]interface{}{"data": validationErr.Error()}}
 			json.NewEncoder(rw).Encode(response)
 			return
 		}
 
-		//		roles := []models.Role{role_new, role_member}
-
-		newUser := models.User{
+		newRole := models.Role{
 			Id:   primitive.NewObjectID(),
-			Name: user.Name,
+			Name: role.Name,
 		}
 
-		result, err := userCollection.InsertOne(ctx, newUser)
+		result, err := roleCollection.InsertOne(ctx, newRole)
 		if err != nil {
 			rw.WriteHeader(http.StatusInternalServerError)
 			response := responses.UserResponse{Status: http.StatusInternalServerError, Message: "error", Data: map[string]interface{}{"data": err.Error()}}
@@ -64,7 +60,7 @@ func CreateUser() http.HandlerFunc {
 	}
 }
 
-func GetAUser() http.HandlerFunc {
+func GetARole() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		rw.Header().Set("Content-Type", "application/json")
@@ -75,7 +71,7 @@ func GetAUser() http.HandlerFunc {
 
 		objId, _ := primitive.ObjectIDFromHex(userId)
 
-		err := userCollection.FindOne(ctx, bson.M{"id": objId}).Decode(&user)
+		err := roleCollection.FindOne(ctx, bson.M{"id": objId}).Decode(&user)
 		if err != nil {
 			rw.WriteHeader(http.StatusInternalServerError)
 			response := responses.UserResponse{Status: http.StatusInternalServerError, Message: "error", Data: map[string]interface{}{"data": err.Error()}}
@@ -89,14 +85,14 @@ func GetAUser() http.HandlerFunc {
 	}
 }
 
-func GetAllUser() http.HandlerFunc {
+func GetAllRole() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		rw.Header().Set("Content-Type", "application/json")
 		var users []models.User
 		defer cancel()
 
-		results, err := userCollection.Find(ctx, bson.M{})
+		results, err := roleCollection.Find(ctx, bson.M{})
 
 		if err != nil {
 			rw.WriteHeader(http.StatusInternalServerError)
